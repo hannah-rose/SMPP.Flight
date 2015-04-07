@@ -34,6 +34,7 @@ import smpp.game.*;
 import smpp.game.control.*;
 import smpp.game.display.*;
 import smpp.game.appstates.levels.*;
+import smpp.game.effects.*;
 
 /**
  * Appstate for running game
@@ -62,17 +63,19 @@ public class InitPhysics extends AbstractAppState
     private RigidBodyControl rewardPhy;
     private RigidBodyControl playerControl;
     
-    private boolean hit_platform = false;
-    private boolean hit_obstacle = false;
-    private boolean hit_reward = false;
+    public boolean hit_platform = false;
+    public boolean hit_obstacle = false;
+    public boolean hit_reward = false;
     private Material mat2;
     private Status game_status;
+    private Sound sound;
     private World world;
     private Vector3f center;
     private Quaternion rotation;
     
     //Constructor
-    public InitPhysics(AppStateManager stateManager, World world, Node player, Status game_status ){
+    public InitPhysics(AppStateManager stateManager, World world, Node player, 
+                    Status game_status, Sound sound ){
         this.stateManager = stateManager;
         this.platforms = world.platforms;
         this.obstacles = world.obstacles;
@@ -80,6 +83,7 @@ public class InitPhysics extends AbstractAppState
         this.world = world;
         this.player = player;
         this.game_status = game_status;
+        this.sound = sound;
         
     }
     
@@ -132,6 +136,7 @@ public class InitPhysics extends AbstractAppState
         if (hit_reward){
             hit_reward=false;
             game_status.score = game_status.score + 1;
+            sound.coin.play();
         }
         
         //Logic to move through levels and repetitions
@@ -208,10 +213,6 @@ public class InitPhysics extends AbstractAppState
         center = new Vector3f(world.Level1.x,world.Level1.y-3f,world.Level1.z+10f);
         rotation = player.getLocalRotation();
 
-        //Test material
-        mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat2.setColor("Color", ColorRGBA.Magenta);
-        
         //Activate physics simulation
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);

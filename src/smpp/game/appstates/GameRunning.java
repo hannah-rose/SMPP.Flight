@@ -19,6 +19,7 @@ import com.jme3.app.SimpleApplication;
 import smpp.game.*;
 import smpp.game.control.*;
 import smpp.game.display.*;
+import smpp.game.effects.*;
 
 /**
  * Appstate for running game
@@ -54,6 +55,7 @@ public class GameRunning extends AbstractAppState {
     Key_Motion key_motion;
     Status game_status;
     InitPhysics physics;
+    Sound sound;
     
     @Override
     public void update(float tpf){
@@ -78,10 +80,12 @@ public class GameRunning extends AbstractAppState {
         
         key_motion = new Key_Motion(flightgame.player, cam);
         game_status = new Status(assetManager,settings);
-        physics = new InitPhysics(stateManager, world, flightgame.player, game_status);
+        sound = new Sound(assetManager);
+        physics = new InitPhysics(stateManager, world, flightgame.player, game_status, sound);
         
         stateManager.attach(game_status);
         stateManager.attach(key_motion);
         stateManager.attach(physics);
+        stateManager.attach(sound);
     }
 }

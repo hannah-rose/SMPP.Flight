@@ -73,48 +73,6 @@ public class InitializeGame{
     }
 
     
-//      //Custom Keybinding: Map named actions to inputs
-//    private void initKeys(InputManager inputManager){
-//        //You can map one or several inputs to one named action
-//        inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_J));
-//        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_L));
-//        inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_I));
-//        inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_K));
-//        inputManager.addMapping("In", new KeyTrigger(KeyInput.KEY_SPACE));
-//        
-//        //Add the names to the listeners
-//        inputManager.addListener(analogListener, "Left", "Right", "Up", "Down", "In");
-//    }
-//    
-//    
-//    private AnalogListener analogListener = new AnalogListener(){
-//        public void onAnalog(String name, float value, float tpf){
-//            if (name.equals("Right")){
-//                Vector3f v = player.getLocalTranslation();
-//                player.setLocalTranslation(v.x + value*tpf, v.y, v.z);
-//            }
-//            if (name.equals("Left")){
-//                Vector3f v = player.getLocalTranslation();
-//                player.setLocalTranslation(v.x - value*tpf, v.y, v.z);
-//            }
-//            if (name.equals("Up")){
-//                Vector3f v = player.getLocalTranslation();
-//                player.setLocalTranslation(v.x, v.y + value*tpf, v.z);
-//            }
-//            if (name.equals("Down")){
-//                Vector3f v = player.getLocalTranslation();
-//                player.setLocalTranslation(v.x, v.y - value*tpf, v.z);
-//            }
-//            if (name.equals("In")){
-//                Vector3f v = player.getLocalTranslation();
-//                player.setLocalTranslation(v.x, v.y, v.z - value*tpf*2);
-//            }
-//            else {
-//                System.out.println("Press P to unpause.");
-//            }
-//        }
-//    }; 
-    
     /**
      * builds the plane node. Uses 'Models/Cessna-172.obj' 3d object and
      * associated materials. Adds GhostControl with BoxCollisionShape to plane
