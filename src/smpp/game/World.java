@@ -17,16 +17,9 @@ package smpp.game;
 import com.jme3.light.AmbientLight;
 import com.jme3.util.SkyFactory;
 import com.jme3.texture.Texture;
-
-import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.control.BetterCharacterControl;
-
+import com.jme3.math.Quaternion;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.app.state.AppStateManager;
-
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -37,7 +30,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 
 /**
@@ -46,20 +38,17 @@ import com.jme3.shadow.DirectionalLightShadowRenderer;
  */
 
 public class World {
-    private Node              rootNode;
-    private AssetManager      assetmanager;
-    private ViewPort          viewPort;
-    
     public World(Node rootnode, AssetManager assetManager, ViewPort viewport){
-        this.rootNode = rootnode;
-        this.assetmanager = assetManager;
-        this.viewPort = viewport;
     }
     
     private Spatial sky;
     public Node platforms;
     public Node obstacles;
     public Node rewards;
+    
+    public Geometry platformGeo1;
+    public Geometry platformGeo2;
+    public Geometry platformGeo3;
     public static final String LANDING = "Landing";
     
     public Vector3f Level1 = new Vector3f(35f,0f,45f);
@@ -75,15 +64,27 @@ public class World {
     
     Vector3f directionalLightDir = new Vector3f(0, -1, 0);
     private static final int SHADOW_MAP_SZ = (2048 * 2), NB_SPLITS = 3;
+    
+    private Quaternion slot_up = new Quaternion();  //tilt slot up
+    private Quaternion slot_forward = new Quaternion(); //turn slot forward
+    private Quaternion slot_tilt = new Quaternion(); //tilt slot toward path
+    
+    private Quaternion slot_LR = new Quaternion(); //left path, tilt right
    
     public void draw_world(AssetManager assetmanager, ViewPort viewPort, Node rootNode){
+        //Initialize rotation quaternions
+        slot_up.fromAngleAxis(FastMath.PI/2, new Vector3f(1,0,0));
+        slot_forward.fromAngleAxis(FastMath.PI*70/180, new Vector3f(0,1,0));
+        slot_tilt.fromAngleAxis(FastMath.PI*22/180, new Vector3f(0,0,1));
+        slot_LR = slot_up.mult(slot_forward);
+        
         //Sky
-        Texture west = assetmanager.loadTexture("Textures/Sky_1.jpg");
-        Texture east = assetmanager.loadTexture("Textures/Sky_1.jpg");
-        Texture north = assetmanager.loadTexture("Textures/Sky_1.jpg");
-        Texture south = assetmanager.loadTexture("Textures/Sky_1.jpg");
-        Texture up = assetmanager.loadTexture("Textures/Sky_up.jpg");
-        Texture down = assetmanager.loadTexture("Textures/Sky_down.JPG");
+        Texture west = assetmanager.loadTexture("Textures/Sky/Sky_1.jpg");
+        Texture east = assetmanager.loadTexture("Textures/Sky/Sky_1.jpg");
+        Texture north = assetmanager.loadTexture("Textures/Sky/Sky_1.jpg");
+        Texture south = assetmanager.loadTexture("Textures/Sky/Sky_1.jpg");
+        Texture up = assetmanager.loadTexture("Textures/Sky/Sky_up.jpg");
+        Texture down = assetmanager.loadTexture("Textures/Sky/Sky_down.JPG");
 
         sky = SkyFactory.createSky(assetmanager, west, east, north, south, up, down);
         rootNode.attachChild(sky);
@@ -116,48 +117,46 @@ public class World {
     /*Function takes in origin of level and draws landing platforms
      *obstacles relative to the origin
      *Will eventually split into different functions for each level*/
-    private void drawLevel(Vector3f position, AssetManager assetmanager){
+    private void drawLevel(Vector3f origin, AssetManager assetmanager){
         //create a solid platform at relative coordinates (0,-1,-10)
-        Box platformMesh = new Box(Vector3f.ZERO, 1f, 0.25f, 1f);
-        Geometry platformGeo1 = new Geometry("Landing", platformMesh);
+        @SuppressWarnings("deprecation")
+		Box platformMesh = new Box(Vector3f.ZERO, 1f, 0.25f, 1f);
+        platformGeo1 = new Geometry("Landing", platformMesh);
         //Material stoneMat = assetmanager.loadMaterial("Materials/pebbles.j3m");
         //platformGeo.setMaterial(stoneMat);
         Material mat1 = new Material(assetmanager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.Yellow);
         platformGeo1.setMaterial(mat1);
-        platformGeo1.move(position.x,position.y-1,position.z-10);
-        
+        platformGeo1.move(origin.x,origin.y-1,origin.z-10);
         
         //create a solid platform at relative coordinates (8,0,-10)
         //Box platformMesh2 = new Box(Vector3f.ZERO, 1f, 0.25f, 1f);
-        Geometry platformGeo2 = new Geometry("Landing", platformMesh);
+        platformGeo2 = new Geometry("Landing", platformMesh);
         Material mat2 = new Material(assetmanager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat2.setColor("Color", ColorRGBA.Red);
         platformGeo2.setMaterial(mat2);
-        platformGeo2.move(position.x+8,position.y,position.z-10);
+        platformGeo2.move(origin.x+8,origin.y,origin.z-10);
         
         //create a solid platform at relative coordinates (-8,0,-10)
-        //Box platformMesh3 = new Box(Vector3f.ZERO, 1f, 0.25f, 1f);
-        Geometry platformGeo3 = new Geometry("Landing", platformMesh);
+        platformGeo3 = new Geometry("Landing", platformMesh);
         Material mat3 = new Material(assetmanager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat3.setColor("Color", ColorRGBA.Green);
         platformGeo3.setMaterial(mat3);
-        platformGeo3.move(position.x-8,position.y,position.z-10);
+        platformGeo3.move(origin.x-8,origin.y,origin.z-10);
+        //platformGeo3.setLocalRotation(slot_tilt);
         
-        //Solid obstacle to rotate around
-        Sphere obstacleMesh = new Sphere(16,16,0.2f);
-        Geometry obstacleGeo1 = new Geometry("Obstacle",obstacleMesh);
-        Material mat4 = new Material(assetmanager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat4.setColor("Color", ColorRGBA.Gray);
-        obstacleGeo1.setMaterial(mat4);
-        obstacleGeo1.move(position.x-3,position.y-1.5f,position.z);
+        //Slot to rotate the plane through
+        Spatial slot = assetmanager.loadModel("Models/slot/slot.j3o");
+        slot.move(origin.x-3,origin.y-1.5f,origin.z);
+        slot.setLocalRotation(slot_LR);
+        slot.setLocalScale(3f);
         
         //Rewards to gather
         Spatial coin = assetmanager.loadModel("Models/coin/coin.j3o");
         Material mat5 = new Material(assetmanager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat5.setColor("Color", ColorRGBA.Yellow);
         coin.setMaterial(mat5);
-        coin.move(position.x+4,position.y-1.5f,position.z);
+        coin.move(origin.x+4,origin.y-1.5f,origin.z);
         coin.setLocalScale(0.4f,0.4f,0.4f);
         coin.rotate(90*FastMath.DEG_TO_RAD, 30*FastMath.DEG_TO_RAD, 0f);
         
@@ -167,7 +166,7 @@ public class World {
         platforms.attachChild(platformGeo3);
         
         //Attach obstacles to obstacle node
-        obstacles.attachChild(obstacleGeo1);
+        obstacles.attachChild(slot);
         
         //Attach rewards to reward node
         rewards.attachChild(coin);

@@ -1,0 +1,18 @@
+---
+SMPPMotionWebSocketURI: !uri ws://localhost:8888/datastream/websocket
+SMPPMotionWebURI: !uri http://localhost:8888/
+SMPPMotionWebUN: admin
+SMPPMotionWebPW: juniormint
+TrackedType: 
+#    - !TRACKING_DATA_TYPE OptiTrackData
+    - !TRACKING_DATA_TYPE ThreeGearData
+    - !TRACKING_DATA_TYPE SerialObject
+    - !TRACKING_DATA_TYPE SerialRestPad
+TrackedObject: LEFT_HAND_1
+#having these 'norm' params is probably useless. should alway be same as standard game 'trackedObject'
+NormTrackedObject: LEFT_HAND_1
+NormTrackedType: !TRACKING_DATA_TYPE ThreeGearData
+Debug: false
+chaseCam: false
+#RGBD1
+...

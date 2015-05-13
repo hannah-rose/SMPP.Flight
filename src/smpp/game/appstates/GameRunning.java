@@ -35,8 +35,6 @@ public class GameRunning extends AbstractAppState {
     private Camera cam;
     private FlyByCamera flyCam;
     private AppSettings settings;
-    private AppStateManager stateManager;
-    
     //Constructor
     public GameRunning(Node rootNode, AssetManager assetManager, ViewPort viewPort, InputManager inputManager,
                        AppStateManager stateManager, Camera cam, FlyByCamera flyCam ){
@@ -46,7 +44,6 @@ public class GameRunning extends AbstractAppState {
         this.inputManager = inputManager;
         this.cam = cam;
         this.flyCam = flyCam;
-        this.stateManager = stateManager;
         
     }
     
@@ -54,7 +51,7 @@ public class GameRunning extends AbstractAppState {
     InitializeGame flightgame = new InitializeGame(rootNode, inputManager, assetManager);
     Key_Motion key_motion;
     Status game_status;
-    InitPhysics physics;
+    GamePhysics physics;
     Sound sound;
     
     @Override
@@ -81,7 +78,7 @@ public class GameRunning extends AbstractAppState {
         key_motion = new Key_Motion(flightgame.player, cam);
         game_status = new Status(assetManager,settings);
         sound = new Sound(assetManager);
-        physics = new InitPhysics(stateManager, world, flightgame.player, game_status, sound);
+        physics = new GamePhysics(stateManager, world, flightgame.player, game_status, sound);
         
         stateManager.attach(game_status);
         stateManager.attach(key_motion);

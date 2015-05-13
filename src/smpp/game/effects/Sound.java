@@ -11,7 +11,7 @@ import com.jme3.asset.AssetManager;
 
 import com.jme3.audio.AudioNode;
 
-import smpp.game.appstates.InitPhysics;
+import smpp.game.appstates.GamePhysics;
 
 /**
  *
@@ -22,7 +22,7 @@ public class Sound extends AbstractAppState {
     //Variables
     public AudioNode coin;
     AssetManager assetManager;
-    InitPhysics physics;
+    GamePhysics physics;
     
     //Constructor
     public Sound(AssetManager assetManager){

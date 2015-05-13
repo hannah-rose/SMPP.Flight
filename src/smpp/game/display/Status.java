@@ -14,8 +14,6 @@ import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.input.InputManager;
-import com.jme3.math.ColorRGBA;
 
 /**
  * @author Hannah
@@ -25,12 +23,9 @@ public class Status extends AbstractAppState {
     private SimpleApplication app;
     private Node guiNode;
     private AssetManager assetManager;
-    private AppSettings settings;
-    
     //constructor
     public Status(AssetManager assetManager, AppSettings settings){
         this.assetManager = assetManager;
-        this.settings = settings;
     }
     
     public int level=1;

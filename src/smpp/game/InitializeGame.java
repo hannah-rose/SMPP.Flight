@@ -5,15 +5,7 @@ package smpp.game;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.BetterCharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.InputManager;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.renderer.ViewPort;
-
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
@@ -31,16 +23,7 @@ import com.jme3.renderer.Camera;
  */
 
 public class InitializeGame{
-    private Node              rootNode;
-    private AssetManager      assetManager;
-    private AppStateManager   stateManager;
-    private InputManager      inputManager;
-    private ViewPort          viewPort;
-    
     public InitializeGame(Node rootNode, InputManager inputManager, AssetManager assetManager){
-        this.rootNode = rootNode;
-        this.inputManager = inputManager;
-        this.assetManager = assetManager;
     }
    
     public Node player;
@@ -83,7 +66,7 @@ public class InitializeGame{
      * @return
      */
     private Node buildPlane(float planeScale, AssetManager assetManager) {
-            Spatial pModel = assetManager.loadModel("Models/Cessna-172.obj");
+            Spatial pModel = assetManager.loadModel("Models/Cessna-172/Cessna-172.j3o");
             Node plane = new Node();
             // BoundingBox pbox = (BoundingBox) pModel.getWorldBound();
             pModel.setName("plane");

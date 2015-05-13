@@ -1,0 +1,26 @@
+ids: [b070ee4b-027d-44b1-a259-cebe19f13090, 0af4f974-e124-4f42-94aa-d18d9601563f,
+  452780af-9a79-4ed7-9f66-6bd3fa2ffd39, bfc7348c-54bd-4c2e-8d21-8c8fbc37eb29, 1bb5b8d3-cb11-4c54-b8a6-4127865931bd]
+sessions:
+  jack:
+  - &id001 !set
+    expId: 6d1622cf-375e-430a-91d9-4b90eed081ff
+    feedback: {helper: true, audio: false, slots: true, coins: true, realtime: true}
+    normId: 6ffc7d8b-6eae-4ec7-99bc-40c953d39c7a
+    numTrials: 2
+    sensitivityAperture: 1.0
+    sensitivityRotation: 0.5
+    sensitivityTrajectory: 0.5
+  - &id002 !set
+    expId: 1bf2741e-3935-4280-8944-b8c08a619db5
+    feedback: {helper: false, audio: false, slots: true, coins: true, realtime: true}
+    normId: adede759-c433-4cf7-8fee-7d7f7cab3e0d
+    numTrials: 11
+    sensitivityAperture: 2.2
+    sensitivityRotation: 2.1
+    sensitivityTrajectory: 2.0
+  - *id001
+  foobar:
+  - *id001
+  jack2:
+  - *id002
+  - *id002
