@@ -7,8 +7,8 @@ import com.jme3.scene.Node;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.app.Application;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.math.Quaternion;
 
@@ -55,8 +55,8 @@ public class GamePhysics extends AbstractAppState {
         position = player.getLocalTranslation();
         rotation = player.getLocalRotation();
         
-        System.out.println(position);
-        System.out.println(rotation.getX());
+        //System.out.println(position);
+        //System.out.println(rotation.getX());
         
         //Logic to deal with obstacle collisions
         //If you are in the z coordinates of the obstacle, but you're not in the
@@ -82,16 +82,28 @@ public class GamePhysics extends AbstractAppState {
             }
         }
         
+        //Don't allow plane to move through platform
+        if((position.y<center.y+0.6)&&(position.y>center.y-0.6)
+        	&&((position.x>center.x+6.5)||(position.x<center.x-6.5))
+        	&&(position.z<center.z-7)){
+        	player.setLocalTranslation(new Vector3f(position.x,center.y+0.6f,position.z));
+        }
+        if((position.y<center.y-0.4)&&(position.y>center.y-1.6)
+        	&&(position.x<center.x+1)&&(position.x>center.x-1)
+        	&&(position.z<center.z-7)){
+        	player.setLocalTranslation(new Vector3f(position.x,center.y-0.4f,position.z));
+        }
+        
         //Logic to move through levels and repetitions
         //Check for landing on platform1, platform2, or platform3
         if (((position.x<center.x+0.5)&&(position.x>center.x-0.5)
              &&(position.y<center.y)&&(position.y>center.y-1.5)
              &&(position.z<center.z-9)&&(position.z>center.z-10.5))
            ||((position.x<center.x-7.5)&&(position.x>center.x-8.5)
-             &&(position.y<center.y+1)&&(position.y>center.y-2)
+             &&(position.y<center.y+1)&&(position.y>center.y+0.25)
              &&(position.z<center.z-9)&&(position.z>center.z-10.5))
            ||((position.x<center.x+8.5)&&(position.x>center.x+7.5)
-             &&(position.y<center.y+1)&&(position.y>center.y-2)
+             &&(position.y<center.y+1)&&(position.y>center.y+0.25)
              &&(position.z<center.z-9)&&(position.z>center.z-10.5))){
             rep_check=true;
             if(game_status.rep==3){
@@ -148,14 +160,9 @@ public class GamePhysics extends AbstractAppState {
                     game_status.level=1;
                     break;
                 }
-                //platform1 = new Vector3f(plane_init.x,plane_init.y-1,plane_init.z-10);
-                //platform2 = new Vector3f(plane_init.x+8,plane_init.y,plane_init.z-10);
-                //platform3 = new Vector3f(plane_init.x-8,plane_init.y,plane_init.z-10);
-                //coin = new Vector3f(plane_init.x+4,plane_init.y-1.5f,plane_init.z);
-                //obstacle = new Vector3f(plane_init.x-3,plane_init.y-1.5f,plane_init.z);
             }
         player.setLocalTranslation(plane_init);
-        //player.setLocalRotation(rotation);
+        player.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.PI, new Vector3f(0,1,0)));
         game_status.rep = game_status.rep + 1f;  
         }         
     }

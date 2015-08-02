@@ -5,7 +5,7 @@ sessions:
   - &id001 !set
     expId: 6d1622cf-375e-430a-91d9-4b90eed081ff
     feedback: {helper: true, audio: false, slots: true, coins: true, realtime: true}
-    normId: 6ffc7d8b-6eae-4ec7-99bc-40c953d39c7a
+    normId: 441b8a8f-a0f1-4f95-b7b2-a8f5acf130f3
     numTrials: 2
     sensitivityAperture: 1.0
     sensitivityRotation: 0.5
@@ -13,7 +13,7 @@ sessions:
   - &id002 !set
     expId: 1bf2741e-3935-4280-8944-b8c08a619db5
     feedback: {helper: false, audio: false, slots: true, coins: true, realtime: true}
-    normId: adede759-c433-4cf7-8fee-7d7f7cab3e0d
+    normId: 441b8a8f-a0f1-4f95-b7b2-a8f5acf130f3
     numTrials: 11
     sensitivityAperture: 2.2
     sensitivityRotation: 2.1

@@ -4,6 +4,21 @@
  */
 package smpp.game.appstates;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.UUID;
+
+import org.apache.http.client.ClientProtocolException;
+import org.ric.smpp.domain.Trial;
+import org.ric.smpp.domain.common.Common.TRACKING_DATA_TYPE;
+import org.ric.smpp.domain.core.TrackingFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jme3.scene.Node;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
@@ -12,14 +27,28 @@ import com.jme3.input.InputManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.input.FlyByCamera;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.system.AppSettings;
-
 import com.jme3.app.SimpleApplication;
+
+import smpp.configuration.Configuration;
+import smpp.configuration.GameConfiguration;
+import smpp.configuration.SetConfig;
 import smpp.game.*;
 import smpp.game.control.*;
+import smpp.game.controllers.AbstractReachDeviationControl;
+import smpp.game.controllers.LiveReachDeviationControl;
+import smpp.game.controllers.MotionPlaybackController;
+import smpp.game.controllers.RecordedReachDeviationControl;
+import smpp.game.controllers.UserMotionControl;
 import smpp.game.display.*;
 import smpp.game.effects.*;
+import smpp.networking.MotionCaptureWebClient;
+import smpp.networking.IFrameObservable;
+import smpp.sensors.RestSensor;
+
 
 /**
  * Appstate for running game
@@ -35,6 +64,25 @@ public class GameRunning extends AbstractAppState {
     private Camera cam;
     private FlyByCamera flyCam;
     private AppSettings settings;
+    private static final Logger LOG = LoggerFactory.getLogger(GameRunning.class);
+    
+    // Variables from Jack's GamePlayAppState
+    // TODO: clean up with comments once they are all integrated
+    private List<TrackingFrame> healthyMotion;
+    private UUID experimentId, setId, trialId;
+    private IFrameObservable o;
+    
+    List<SetConfig> setConfigurations;
+    float sensitivity = 0.1f;
+    private ResourceBundle strings;
+    MotionCaptureWebClient mMcwc;
+    String nTrackedObject = Configuration.getNormTrackedObject();
+    SetConfig curSetConfig;
+    
+    private boolean isReaching = false;
+    
+    //*********************************************************
+    
     //Constructor
     public GameRunning(Node rootNode, AssetManager assetManager, ViewPort viewPort, InputManager inputManager,
                        AppStateManager stateManager, Camera cam, FlyByCamera flyCam ){
@@ -80,9 +128,253 @@ public class GameRunning extends AbstractAppState {
         sound = new Sound(assetManager);
         physics = new GamePhysics(stateManager, world, flightgame.player, game_status, sound);
         
+        //Get strings from resource bundle
+        //TODO: see if this is useful / ask Jack what it does
+        // It threw an error, taking it out for now
+        //this.strings = ResourceBundle.getBundle("strings");
+        
+        // Test get data
+        //TODO: do I need the commented-out stuff
+        try {
+        	mMcwc = new MotionCaptureWebClient(Configuration.getSMPPWebServiceURI());
+        	// Trial t = mMcwc.getTrial(Configuration.getNormExperimentID());
+        	// tutorPilot.addControl(new MotionPlaybackController("RIGHT_HAND_1", healthyMotion));
+        }
+        catch (Exception e){
+        	e.printStackTrace();
+        }
+        
+        // More configurations
+        // TODO: 
+        try {
+        	setConfigurations = GameConfiguration.getSetListForId(Configuration.getUserId());
+        	int numSets = setConfigurations.size();
+        }
+        catch (IOException e) {
+        	// couldn't find sesion configuration for configured userId
+        	e.printStackTrace();
+        }
+        
+        /*try {
+			initSetParams(game_status.level);
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+        
+        //catch (URISyntaxException e) {
+        	//e.printStackTrace();
+        //}
+        
+        
+        // Control
+        // Move to separate class with KeyMotion control
+        //UserMotionControl userMotionControl = new UserMotionControl(
+		//		Configuration.getTrackedObject());
+        
+        try {
+			MotionPlaybackController playbackControl = new MotionPlaybackController("RIGHT_HAND_1", healthyMotion);
+			flightgame.player.addControl(playbackControl);
+			System.out.println("Motion control activated");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
+		// LiftTaskCompletionTracker tct = new LiftTaskCompletionTracker();
+		//o.addObserver(userMotionControl);
+		//RestSensor rs = new RestSensor(o);
+		//rs.registerListener(null);  // what should be here as a parameter. Need rest listener
+		try {
+			//buildSlots(Configuration.getNormTrackedObject(), healthyMotion, rootNode, 4, planeScale);
+			
+			
+			//flightgame.player.addControl(userMotionControl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        //**********************************************************************************
+        
         stateManager.attach(game_status);
-        stateManager.attach(key_motion);
+        //stateManager.attach(key_motion);
         stateManager.attach(physics);
         stateManager.attach(sound);
     }
+
+
+
+private void initSetParams(int set) throws ClientProtocolException, URISyntaxException, IOException 
+{
+	curSetConfig = setConfigurations.get(set);
+	game_status.num_reps = curSetConfig.getNumTrials();
+	int numSets = setConfigurations != null ? setConfigurations.size() : 0;
+	if (curSetConfig.getExpId() != null)
+		experimentId = UUID.fromString(curSetConfig.getExpId());
+	else {
+		experimentId = mMcwc.createExperiment(Configuration.getUserId() + "_exp");
+		curSetConfig.setExpId(experimentId.toString());
+		GameConfiguration.saveGameConfiguration();
+	}
+	setId = mMcwc.createSession(experimentId, "set_" + set);
+	Trial t = mMcwc.getTrial(curSetConfig.getNormId());
+	healthyMotion = mMcwc.getData(TRACKING_DATA_TYPE.ThreeGearData, t.getStartTime().getTime(),
+			t.getEndTime().getTime());
+	LOG.info(GameRunning.class + " initialized. trial " + game_status.rep + "/" + game_status.num_reps
+			+ ", set " + set + "/" + numSets + " curSetConfig: " + curSetConfig
+			+ " experimentId: " + experimentId + " normTrialId: " + t.getId());
+}
+
+
+/*private TrackingFrameExtractor<Vector3f, TrackingFrame> trackedObjPositionExtractor = new TrackingFrameExtractor<Vector3f, TrackingFrame>() {
+	@Override
+	public Vector3f extract(TrackingFrame tf) {
+		if (canExtract(tf))
+			return Utils.pFromFloat(tf.getTrackingObjects().get(nTrackedObject)
+					.getObjectPoint());
+		return null;
+	}
+
+	@Override
+	public boolean canExtract(TrackingFrame tf) {
+		return tf.getTrackingObjects().containsKey(nTrackedObject);
+	}
+};
+private TrackingFrameExtractor<Quaternion, TrackingFrame> trackedObjQuatExtractor = new TrackingFrameExtractor<Quaternion, TrackingFrame>() {
+	@Override
+	public Quaternion extract(TrackingFrame tf) {
+		if (canExtract(tf))
+			return Utils.qFromFloat(tf.getTrackingObjects().get(nTrackedObject)
+					.getObjectQuaternion());
+		return null;
+	}
+
+	@Override
+	public boolean canExtract(TrackingFrame tf) {
+		return tf.getTrackingObjects().containsKey(nTrackedObject);
+	}
+	
+	/**
+	 * uses given {@link TrackingFrameExtractor} to extract data from evenly
+	 * spaced points along the path (given as List of {@link TrackingFrame}s).
+	 * 
+	 * @param numPositions
+	 *            how many points along the path from which to get the
+	 *            information. Data is regular intervals over the distance of
+	 *            the path
+	 * @param posTrackedObject
+	 *            the trackedObject name which will be used to the path
+	 *            distance.
+	 * @param healthyMotion2
+	 *            the motion data
+	 * @param ext
+	 *            a {@link TrackingFrameExtractor} which will be used on the
+	 *            TrackingFrames to extract the information
+	 * @return a list of length numPositions, containing the data extracted by
+	 *         ext
+	 * @throws Exception
+	 *             if there are < numPositions frames in the given motion data
+	 */
+	private <T> List<T> getTrackingObjectInformationAtProgresses(int numPositions,
+			String posTrackedObject, List<TrackingFrame> healthyMotion2,
+			TrackingFrameExtractor<T, TrackingFrame> ext) throws Exception {
+		if (healthyMotion2.size() < numPositions)
+			throw new Exception("not enough TrackingFrame to calculate rotations. expected > "
+					+ numPositions + " . was " + healthyMotion2.size());
+		List<Vector3f> m = Utils.toVectors(healthyMotion2, posTrackedObject);
+		Vector3f cur = Utils.pFromFloat(healthyMotion2.get(1).getTrackingObjects()
+				.get(posTrackedObject).getObjectPoint()), prev = Utils.pFromFloat(healthyMotion2
+				.get(0).getTrackingObjects().get(posTrackedObject).getObjectPoint());
+		int curPosition = 0;
+		Vector3f from = m.get(0);
+		Vector3f furthest = AbstractReachDeviationControl.findFurthest(from, m);
+		float totalDist = Utils.calculatePathDistanceTo(m, furthest);
+		LOG.debug("calculated total distance: " + totalDist + ". from: " + from
+				+ " to furthest point: " + furthest);
+		float distTravelled = 0;
+		List<T> qs = new ArrayList<T>(numPositions);
+		for (int i = 0; i < healthyMotion2.size() && curPosition < numPositions; i++) {
+			if (ext.canExtract(healthyMotion2.get(i))) {
+				if (healthyMotion2.get(i).getTrackingObjects().containsKey(posTrackedObject))
+					cur = Utils.pFromFloat(healthyMotion2.get(i).getTrackingObjects()
+							.get(posTrackedObject).getObjectPoint());
+			} else
+				// skip frames without the desired TrackingObject, slash that
+				// can't be extracted
+				continue;
+			distTravelled += cur.subtract(prev).length();
+			float comp = distTravelled / totalDist;
+			float prog = (float) curPosition / ((float) numPositions - 1);
+			if (comp >= prog) {
+				LOG.trace("comp: " + comp + " curPosition/numPositions: " + prog
+						+ " extracing value and adding to return list");
+				qs.add(ext.extract(healthyMotion2.get(i)));
+				curPosition++;
+			}
+			prev = cur;
+		}
+		return qs;
+	}
+
+
+
+// This is used when we return to the rest position
+public void onRestChange(boolean isRestingNow) {
+	if (isRestingNow) {
+		// if we are now resting. If we were reaching previously,
+		// end recording. Otherwise start recording, in preperation
+		// for another reach
+		LOG.debug("resting now");
+		try {
+			if (isReaching) {
+				LOG.debug("we were reaching. ending recording: " + trialId);
+				assert (trialId != null);
+				// end reach. stop recording
+				mMcwc.stopRecording(trialId);
+				// Is this something I need
+				//Utils.setText(screen, statusTextId, strings.getString("status") + ": "
+				//		+ strings.getString("recordingComplete"));
+				isReaching = false;
+				if (game_status.rep == game_status.num_reps) {
+					// set complete
+					game_status.rep = 0;
+					game_status.level++;
+					LOG.info("completed trial " + game_status.rep + "/" + game_status.num_reps + ". Set complete!");
+					if (game_status.level == game_status.num_levels) {
+						LOG.info("completed set " + game_status.level + "/" + game_status.num_levels + ". Session complete");
+						System.exit(1);
+					}
+					initSetParams(game_status.level);
+					// curSetConfig = setConfigurations.get(set);
+					// LOG.debug("loading configuration for set: " + set +
+					// " config: "
+					// + curSetConfig);
+				}
+				//startScreenAppState.updateGameGUI(score, trial, set, numTrials, numSets);
+
+			} else {
+				// not reaching. start reach
+				assert (setId != null);
+				trialId = mMcwc.startRecording(setId, Configuration.getTrackedType());
+				LOG.debug("not reaching, and now resting. Begginning reach phase. starting recording. TrialId: "
+						+ trialId);
+				//Utils.setText(screen, statusTextId, strings.getString("status") + ": "
+				//		+ strings.getString("recording"));
+				isReaching = true;
+				game_status.rep++;
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
 }

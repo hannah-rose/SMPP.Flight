@@ -34,6 +34,8 @@ public class Status extends AbstractAppState {
     private BitmapText repText;
     public int score=0;
     private BitmapText scoreText;
+    public int num_levels;
+    public int num_reps;
     
     @Override
     public void update(float tpf){

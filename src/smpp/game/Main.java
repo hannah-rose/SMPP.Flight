@@ -4,19 +4,39 @@
  */
 package smpp.game;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.logging.Logger;
+
+import org.slf4j.LoggerFactory;
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.renderer.RenderManager;
+
 import smpp.game.appstates.*;
+import smpp.configuration.Configuration;
 
 /**
  *
  * @author Hannah
  */
 public class Main extends SimpleApplication{
-    
+	
     public static void main(String[] args){
-        Main app = new Main();
-        app.start();
+        Main game = new Main();
+        
+        // Initialize configuration and configuration paramaters 
+        try {
+			Configuration.init();
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        game.start();
     }
     
     //Call StartScreen here when complete

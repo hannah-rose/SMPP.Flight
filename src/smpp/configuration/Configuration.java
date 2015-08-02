@@ -86,7 +86,10 @@ public class Configuration {
         // Yaml y = new Yaml(new Constructor(Configuration.class));
         Constructor constructor = new PropertyConstructor();
         Yaml y = new Yaml(constructor);
-        configMap = (Map<String, Object>) y.load(new FileInputStream(configFile));
+        //configMap = (Map<String, Object>) y.load(new FileInputStream(configFile));
+        FileInputStream io = new FileInputStream(configFile);
+        configMap = (Map<String,Object>) y.load(io);
+        
         LOG.info("parsed yaml config file at " + configFile.getAbsolutePath() + "\n" + "configurations: " + configMap);
 
         //assign config values from parsed yaml
