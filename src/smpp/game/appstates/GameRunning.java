@@ -38,11 +38,6 @@ import smpp.configuration.GameConfiguration;
 import smpp.configuration.SetConfig;
 import smpp.game.*;
 import smpp.game.control.*;
-import smpp.game.controllers.AbstractReachDeviationControl;
-import smpp.game.controllers.LiveReachDeviationControl;
-import smpp.game.controllers.MotionPlaybackController;
-import smpp.game.controllers.RecordedReachDeviationControl;
-import smpp.game.controllers.UserMotionControl;
 import smpp.game.display.*;
 import smpp.game.effects.*;
 import smpp.networking.MotionCaptureWebClient;
@@ -73,13 +68,20 @@ public class GameRunning extends AbstractAppState {
     private IFrameObservable o;
     
     List<SetConfig> setConfigurations;
-    float sensitivity = 0.1f;
-    private ResourceBundle strings;
+    //float sensitivity = 0.1f;
     MotionCaptureWebClient mMcwc;
     String nTrackedObject = Configuration.getNormTrackedObject();
     SetConfig curSetConfig;
     
-    private boolean isReaching = false;
+    /*
+     * Variable to set control source for game
+     * TODO: set from start screen
+     */
+    enum Control {
+    	USER, PLAYBACK, KEYS
+    }
+    
+    //private boolean isReaching = false;
     
     //*********************************************************
     
@@ -92,7 +94,6 @@ public class GameRunning extends AbstractAppState {
         this.inputManager = inputManager;
         this.cam = cam;
         this.flyCam = flyCam;
-        
     }
     
     World world = new World(rootNode, assetManager, viewPort);
@@ -101,6 +102,7 @@ public class GameRunning extends AbstractAppState {
     Status game_status;
     GamePhysics physics;
     Sound sound;
+    Control control = Control.USER;
     
     @Override
     public void update(float tpf){
@@ -108,7 +110,9 @@ public class GameRunning extends AbstractAppState {
     }
     
     @Override
-    public void cleanup() {}
+    public void cleanup() {
+    	
+    }
     
     @Override
     public void initialize(AppStateManager stateManager, Application app){
@@ -123,22 +127,15 @@ public class GameRunning extends AbstractAppState {
         world.draw_world(assetManager, viewPort, rootNode);
         flightgame.initialize_game(cam, flyCam, rootNode, inputManager, assetManager, world.platforms, stateManager);
         
-        key_motion = new Key_Motion(flightgame.player, cam);
         game_status = new Status(assetManager,settings);
         sound = new Sound(assetManager);
         physics = new GamePhysics(stateManager, world, flightgame.player, game_status, sound);
-        
-        //Get strings from resource bundle
-        //TODO: see if this is useful / ask Jack what it does
-        // It threw an error, taking it out for now
-        //this.strings = ResourceBundle.getBundle("strings");
         
         // Test get data
         //TODO: do I need the commented-out stuff
         try {
         	mMcwc = new MotionCaptureWebClient(Configuration.getSMPPWebServiceURI());
         	// Trial t = mMcwc.getTrial(Configuration.getNormExperimentID());
-        	// tutorPilot.addControl(new MotionPlaybackController("RIGHT_HAND_1", healthyMotion));
         }
         catch (Exception e){
         	e.printStackTrace();
@@ -155,61 +152,44 @@ public class GameRunning extends AbstractAppState {
         	e.printStackTrace();
         }
         
-        /*try {
-			initSetParams(game_status.level);
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
+        // Initialize control
+        switch(control) {
+        case USER:
+        	// Live motion tracking
+        	try {
+        		UserMotionControl userMotionControl = new UserMotionControl(Configuration.getTrackedObject());
+        		flightgame.player.addControl(userMotionControl);
+        	} catch (Exception e1) {
+        		e1.printStackTrace();
+        	}
+        case PLAYBACK:
+        	// Playback control of a recorded reach
+        	try {
+    			MotionPlaybackController playbackControl = new MotionPlaybackController("RIGHT_HAND_1", healthyMotion);
+    			flightgame.player.addControl(playbackControl);
+    			LOG.debug("Motion control activated");
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+        case KEYS:
+        	// Use the keyboard to control the plane
+        	try {
+        		key_motion = new Key_Motion(flightgame.player, cam);
+        		stateManager.attach(key_motion);
+        	} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+        }
         
-        //catch (URISyntaxException e) {
-        	//e.printStackTrace();
-        //}
         
-        
-        // Control
-        // Move to separate class with KeyMotion control
-        //UserMotionControl userMotionControl = new UserMotionControl(
-		//		Configuration.getTrackedObject());
-        
-        try {
-			MotionPlaybackController playbackControl = new MotionPlaybackController("RIGHT_HAND_1", healthyMotion);
-			flightgame.player.addControl(playbackControl);
-			System.out.println("Motion control activated");
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-		// LiftTaskCompletionTracker tct = new LiftTaskCompletionTracker();
-		//o.addObserver(userMotionControl);
-		//RestSensor rs = new RestSensor(o);
-		//rs.registerListener(null);  // what should be here as a parameter. Need rest listener
-		try {
-			//buildSlots(Configuration.getNormTrackedObject(), healthyMotion, rootNode, 4, planeScale);
-			
-			
-			//flightgame.player.addControl(userMotionControl);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        //**********************************************************************************
-        
+        // Attach states
         stateManager.attach(game_status);
-        //stateManager.attach(key_motion);
         stateManager.attach(physics);
         stateManager.attach(sound);
     }
+}
 
-
-
-private void initSetParams(int set) throws ClientProtocolException, URISyntaxException, IOException 
+/*private void initSetParams(int set) throws ClientProtocolException, URISyntaxException, IOException 
 {
 	curSetConfig = setConfigurations.get(set);
 	game_status.num_reps = curSetConfig.getNumTrials();
@@ -229,7 +209,8 @@ private void initSetParams(int set) throws ClientProtocolException, URISyntaxExc
 			+ ", set " + set + "/" + numSets + " curSetConfig: " + curSetConfig
 			+ " experimentId: " + experimentId + " normTrialId: " + t.getId());
 }
-
+}
+*/
 
 /*private TrackingFrameExtractor<Vector3f, TrackingFrame> trackedObjPositionExtractor = new TrackingFrameExtractor<Vector3f, TrackingFrame>() {
 	@Override
@@ -280,7 +261,7 @@ private TrackingFrameExtractor<Quaternion, TrackingFrame> trackedObjQuatExtracto
 	 * @throws Exception
 	 *             if there are < numPositions frames in the given motion data
 	 */
-	private <T> List<T> getTrackingObjectInformationAtProgresses(int numPositions,
+	/*private <T> List<T> getTrackingObjectInformationAtProgresses(int numPositions,
 			String posTrackedObject, List<TrackingFrame> healthyMotion2,
 			TrackingFrameExtractor<T, TrackingFrame> ext) throws Exception {
 		if (healthyMotion2.size() < numPositions)
@@ -319,12 +300,12 @@ private TrackingFrameExtractor<Quaternion, TrackingFrame> trackedObjQuatExtracto
 			prev = cur;
 		}
 		return qs;
-	}
+	}9*/
 
 
 
 // This is used when we return to the rest position
-public void onRestChange(boolean isRestingNow) {
+/*public void onRestChange(boolean isRestingNow) {
 	if (isRestingNow) {
 		// if we are now resting. If we were reaching previously,
 		// end recording. Otherwise start recording, in preperation
@@ -377,4 +358,4 @@ public void onRestChange(boolean isRestingNow) {
 		}
 	}
 }
-}
+}*/

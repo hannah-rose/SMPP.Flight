@@ -1,4 +1,4 @@
-package smpp.game.controllers;
+package smpp.game.control;
 
 import java.util.List;
 
