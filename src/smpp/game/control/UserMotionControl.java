@@ -1,4 +1,4 @@
-package smpp.game.controllers;
+package smpp.game.control;
 
 import org.ric.smpp.domain.common.eventnotifications.Observable;
 import org.ric.smpp.domain.common.eventnotifications.Observer;

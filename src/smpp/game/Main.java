@@ -39,13 +39,15 @@ public class Main extends SimpleApplication{
         game.start();
     }
     
-    //Call StartScreen here when complete
-    //For now, go straight to GameRunning
+    // Call StartScreen here when complete
+    // For now, go straight to GameRunning
     GameRunning game_running = new GameRunning(rootNode,assetManager,viewPort,inputManager,stateManager,cam,flyCam);
+    //StartScreen start = new StartScreen();
     
     @Override
     public void simpleInitApp(){
         stateManager.attach(game_running);
+    	//stateManager.attach(start);
     }
     
      @Override

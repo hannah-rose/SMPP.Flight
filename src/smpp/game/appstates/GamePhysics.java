@@ -55,9 +55,6 @@ public class GamePhysics extends AbstractAppState {
         position = player.getLocalTranslation();
         rotation = player.getLocalRotation();
         
-        //System.out.println(position);
-        //System.out.println(rotation.getX());
-        
         //Logic to deal with obstacle collisions
         //If you are in the z coordinates of the obstacle, but you're not in the
         //correct x and y coordinates with the proper rotation, restart
@@ -185,14 +182,6 @@ public class GamePhysics extends AbstractAppState {
         obstacles.setName("obstacles");
         center = world.Level1;
         plane_init = new Vector3f(world.Level1.x,world.Level1.y-3f,world.Level1.z+10f);
-        //rotation = player.getLocalRotation();
-        
-//        platform1 = new Vector3f(plane_init.x,plane_init.y-1,plane_init.z-10);
-//        platform2 = new Vector3f(plane_init.x+8,plane_init.y,plane_init.z-10);
-//        platform3 = new Vector3f(plane_init.x-8,plane_init.y,plane_init.z-10);
-//        coin = new Vector3f(plane_init.x+4,plane_init.y-1.5f,plane_init.z);
-//        obstacle = new Vector3f(plane_init.x-3,plane_init.y-1.5f,plane_init.z);
-           
         
     }
 }
