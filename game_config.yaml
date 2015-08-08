@@ -3,7 +3,7 @@ ids: [b070ee4b-027d-44b1-a259-cebe19f13090, 0af4f974-e124-4f42-94aa-d18d9601563f
 sessions:
   jack:
   - &id001 !set
-    expId: 6d1622cf-375e-430a-91d9-4b90eed081ff
+    expId: 3b6edbea-f697-48e9-aa5c-8da5bce213fc
     feedback: {helper: true, audio: false, slots: true, coins: true, realtime: true}
     normId: 441b8a8f-a0f1-4f95-b7b2-a8f5acf130f3
     numTrials: 2
@@ -11,7 +11,7 @@ sessions:
     sensitivityRotation: 0.5
     sensitivityTrajectory: 0.5
   - &id002 !set
-    expId: 1bf2741e-3935-4280-8944-b8c08a619db5
+    expId: 3b6edbea-f697-48e9-aa5c-8da5bce213fc
     feedback: {helper: false, audio: false, slots: true, coins: true, realtime: true}
     normId: 441b8a8f-a0f1-4f95-b7b2-a8f5acf130f3
     numTrials: 11

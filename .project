@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>SMPP.Flight</name>
+	<comment></comment>
+	<projects>
+		<project>GesturalApps</project>
+		<project>smpp-MotionCaptureWeb</project>
+		<project>SMPPMotionCaptureWeb</project>
+		<project>SMPPMotionDataObjects</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>.git</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/.git</location>
+		</link>
+		<link>
+			<name>.gitignore</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/.gitignore</location>
+		</link>
+		<link>
+			<name>MANIFEST.MF</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/MANIFEST.MF</location>
+		</link>
+		<link>
+			<name>OpenAL64.dll</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/OpenAL64.dll</location>
+		</link>
+		<link>
+			<name>assets</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/assets</location>
+		</link>
+		<link>
+			<name>build</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/build</location>
+		</link>
+		<link>
+			<name>build.xml</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/build.xml</location>
+		</link>
+		<link>
+			<name>dist</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/dist</location>
+		</link>
+		<link>
+			<name>lwjgl64.dll</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/lwjgl64.dll</location>
+		</link>
+		<link>
+			<name>master-application.jnlp</name>
+			<type>1</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/master-application.jnlp</location>
+		</link>
+		<link>
+			<name>nbproject</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/nbproject</location>
+		</link>
+		<link>
+			<name>src</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/src</location>
+		</link>
+		<link>
+			<name>test</name>
+			<type>2</type>
+			<location>E:/Users/Hannah Arntson/Documents/JMonkey/SMPP.Flight/test</location>
+		</link>
+	</linkedResources>
+</projectDescription>

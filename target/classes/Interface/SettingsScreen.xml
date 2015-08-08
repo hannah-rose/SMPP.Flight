@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
+	<useStyles filename="nifty-default-styles.xml" />
+	<useControls filename="nifty-default-controls.xml" />
+	<!-- Settings Screen -->
+	<screen id="settings" controller="smpp.experiment.game.StartScreenAppState">
+		<layer id="background" childLayout="center" width="100%" height="100%">
+			<image filename="Interface/FlightControlBackground.png"></image>
+		</layer>
+		<layer id="foreground" childLayout="vertical" width="100%"
+			height="100%" valign="bottom">
+
+			<!-- Begin the Label side of the Settings Screen -->
+			<panel width="100%" height="100%" childLayout="horizontal">
+				<panel width="50%" height="100%" childLayout="vertical"
+					halign="left">
+					<panel id="spacer" />
+					<panel id="sensitivity_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text textHalign="right" textValign="center" font="aurulent-sans-16.fnt"
+							text="Sensitivity:" color="#000100" textSize="24" />
+					</panel>
+					<panel id="numSets_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text textHalign="right" font="aurulent-sans-16.fnt" color="#000100"
+							text="Number of Sets:" textSize="24" />
+					</panel>
+					<panel id="numTrials_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text extHalign="right" textValign="center" font="aurulent-sans-16.fnt"
+							text="Number of Trials per Set:" color="#000100" textSize="24" />
+					</panel>
+					<panel id="feedback_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control name="button" font="aurulent-sans-16.fnt" label="Feedback"
+							id="FeedbackButton" align="center" valign="center"
+							visibleToMouse="true">
+							<interact onClick="gotoScreen(feedback)" color="#000100" />
+						</control>
+					</panel>
+				</panel>
+
+				<!-- Begin the Label side of the Settings Screen -->
+				<panel width="50%" height="100%" childLayout="vertical"
+					halign="left">
+					<panel id="spacer" />
+					<panel id="sensitivity_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="1">
+						</control>
+					</panel>
+					<panel id="numSets_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="10 sets">
+						</control>
+					</panel>
+					<panel id="numTrials_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="10 trials">
+						</control>
+					</panel>
+					<panel id="button_panel" childLayout="horizontal" width="100%"
+						height="18%" halign="left">
+						<panel id="return_panel" width="50%" height="100%"
+							childLayout="center">
+							<control name="button" font="aurulent-sans-16.fnt" label="Back"
+								id="ReturnButton" align="center" valign="center" visibleToMouse="true">
+								<interact onClick="gotoScreen(start)" color="#000100" />
+							</control>
+						</panel>
+						<panel id="apply_panel" width="50%" height="100%"
+							childLayout="center">
+							<control name="button" font="aurulent-sans-16.fnt" label="Apply"
+								id="ApplyButton" align="center" valign="center" visibleToMouse="true">
+								<!-- TODO: Find a way to implement this -->
+								<interact onClick="applySettings()" color="#000100" />
+							</control>
+						</panel>
+					</panel>
+				</panel>
+			</panel>
+		</layer>
+	</screen>
+</nifty>
