@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+	<useStyles filename="nifty-default-styles.xml" />
+	<useControls filename="nifty-default-controls.xml" />
+	<registerSound id="btnClickSound" filename="Sounds/coin.wav" />
+	<resourceBundle id="strings" filename="strings" />
+	<!-- Start Screen -->
+	<screen id="start"
+		controller="smpp.experiment.game.appstates.StartScreenAndMenuAppState"
+		defaultFocusElement="PlayButton">
+
+		<!-- This should add the background image -->
+		<layer id="background" childLayout="center" width="100%" height="100%">
+			<image filename="Interface/FlightControlBackground.png"></image>
+		</layer>
+
+		<layer id="foreground" childLayout="vertical">
+			<!-- Empty Spacer Panel to accomodate the background's header -->
+			<panel id="panel_top" height="20%" width="100%" align="center"
+				childLayout="center">
+			</panel>
+
+			<!-- Settings panel -->
+			<panel id="panel_settings" height="15%" width="100%" align="center"
+				childLayout="center">
+				<control name="button" font="aurulent-sans-16.fnt" label="Settings"
+					id="SettingsButton" align="center" valign="center" visibleToMouse="true">
+					<interact onClick="gotoScreen(settings)" />
+				</control>
+			</panel>
+
+			<!-- Recalibrate Button -->
+			<panel id="panel_recalibrate" height="15%" width="100%" align="center"
+				childLayout="center">
+				<control name="button" label="Recalibrate" id="RecalibrationButton"
+					align="center" valign="center" visibleToMouse="true">
+					<interact onClick="startCalibration()" />
+				</control>
+			</panel>
+			<!-- Play Button -->
+			<panel id="panel_play" height="15%" width="100%" align="center"
+				childLayout="center" visibleToMouse="true">
+				<control name="button" font="aurulent-sans-16.fnt" label="Play!"
+					id="PlayButton" align="center" valign="center" visibleToMouse="true">
+					<interact onClick="startGame()" />
+				</control>
+
+			</panel>
+		</layer>
+	</screen>
+
+	<!-- Settings Screen -->
+
+	<screen id="settings"
+		controller="smpp.experiment.game.appstates.StartScreenAndMenuAppState">
+		<layer id="background" childLayout="center" width="100%" height="100%">
+			<image filename="Interface/FlightControlBackground.png"></image>
+		</layer>
+		<layer id="foreground" childLayout="vertical" width="100%"
+			height="100%" valign="bottom">
+
+			<!-- Begin the Label side of the Settings Screen -->
+			<panel width="100%" height="100%" childLayout="horizontal">
+				<panel width="50%" height="100%" childLayout="vertical"
+					halign="left">
+					<panel id="spacer" />
+					<panel id="sensitivity_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text textHalign="right" textValign="center" textSize="24"
+							font="aurulent-sans-16.fnt" text="Sensitivity:" color="#000100" />
+					</panel>
+					<panel id="numSets_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text textHalign="right" textSize="24" font="aurulent-sans-16.fnt"
+							color="#000100" text="Number of Sets:" />
+					</panel>
+					<panel id="numTrials_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<text textHalign="right" textValign="center" textSize="30"
+							font="aurulent-sans-16.fnt" text="Number of Trials per Set:"
+							color="#000100" />
+					</panel>
+					<panel id="feedback_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control name="button" font="aurulent-sans-16.fnt"
+							textSize="30" label="Feedback" id="FeedbackButton" align="center"
+							valign="center" visibleToMouse="true">
+							<interact onClick="gotoScreen(feedback)" color="#000100" />
+						</control>
+					</panel>
+				</panel>
+
+				<!-- Begin the Input side of the Settings Screen -->
+				<panel width="50%" height="100%" childLayout="vertical"
+					halign="left">
+					<panel id="spacer" />
+					<panel id="sensitivity_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="1">
+						</control>
+					</panel>
+					<panel id="numSets_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="10 sets">
+						</control>
+					</panel>
+					<panel id="numTrials_panel" childLayout="center" width="100%"
+						height="18%" halign="left">
+						<control id="input" name="textfield" width="20%" text="10 trials">
+						</control>
+					</panel>
+					<panel id="button_panel" childLayout="horizontal" width="100%"
+						height="18%" halign="left">
+						<panel id="return_panel" width="50%" height="100%"
+							childLayout="center">
+							<control name="button" font="aurulent-sans-16.fnt" label="Back"
+								id="ReturnButton" align="center" valign="center" visibleToMouse="true">
+								<interact onClick="gotoScreen(start)" color="#000100" />
+							</control>
+						</panel>
+						<panel id="apply_panel" width="50%" height="100%"
+							childLayout="center">
+							<control name="button" font="aurulent-sans-16.fnt" label="Apply"
+								id="ApplyButton" align="center" valign="center" visibleToMouse="true">
+								<!-- TODO: Find a way to implement this -->
+								<interact onClick="applySettings()" />
+							</control>
+						</panel>
+					</panel>
+				</panel>
+			</panel>
+		</layer>
+	</screen>
+
+	<!-- Calibration Screen -->
+
+	<screen id="calibrate" controller="smpp.experiment.normapp.CalibrationAppState">
+		<!-- <layer id="background" childLayout="center" width="100%" -->
+		<!-- height="100%"> -->
+		<!-- <image filename="Interface/FlightControlBackground.png"></image> -->
+		<!-- </layer> -->
+		<layer id="foreground" childLayout="vertical">
+			<!-- Empty Spacer Panel to accomodate the background's header -->
+			<panel id="panel_top" height="20%" width="100%" childLayout="vertical">
+				<panel id="experimentPanel" childLayout="horizontal" width="50%">
+					<text id="experiment_label" style="nifty-label" align="left"
+						text="${strings.experiment}:" />
+					<panel width="10px" />
+					<control id="experimentDDControl" name="dropDown" align="right" displayItems="6"/>
+				</panel>
+				<panel id="sessionPanel" childLayout="horizontal" width="50%">
+					<text id="session_label" style="nifty-label" align="left"
+						text="${strings.session}:" />
+					<panel width="10px" />
+					<control id="sessionDDControl" name="dropDown" align="right" displayItems="6" />
+				</panel>
+				<panel id="idPanel" childLayout="horizontal" width="50%">
+					<text id="id_panel_label" style="nifty-label" align="left"
+						text="${strings.id}:" />
+					<panel width="10px" />
+					<control id="idDDControl" name="dropDown" align="right" displayItems="6"/>
+				</panel>
+				<text id="id_label" align="left" style="nifty-label" text="${strings.id}: " />
+				<control id="new_recording" name="button" label="${strings.reset}"
+					align="left" />
+				<control id="playbackButton" name="button" label="${strings.playback}"
+					align="left"></control>
+				<text text="Status: ${strings.prereach}" font="aurulent-sans-16.fnt"
+					id="statusText" color="#f1b61d" textHAlign="center"></text>
+			</panel>
+
+			<panel id="prompt1" height="5%" width="100%" align="center"
+				childLayout="vertical">
+				<panel id="prompt" height="50%" width="100%" childLayout="center">
+					<text text="${strings.selectExperimentSessionPrompt}" font="aurulent-sans-16.fnt"
+						id="promptTxt1" color="#f1b61d" textHAlign="center"></text>
+				</panel>
+				<panel id="response" height="50%" width="100%" childLayout="center">
+
+				</panel>
+			</panel>
+
+			<panel id="panel_recalibrate" height="15%" width="100%" align="center"
+				childLayout="center">
+				<control name="button" label="Okay" id="okButton" align="center"
+					valign="center" visibleToMouse="true">
+					<!-- <interact onClick="getCalibrationState()" /> -->
+				</control>
+			</panel>
+			<!-- Back Button -->
+			<!-- <panel id="panel_play" height="15%" width="100%" align="center" -->
+			<!-- childLayout="center" visibleToMouse="true"> -->
+			<!-- <control name="button" font="aurulent-sans-16.fnt" label="Back" -->
+			<!-- id="BackButton" align="center" valign="center" visibleToMouse="true"> -->
+			<!-- <interact onClick="gotoScreen(start)" /> -->
+			<!-- </control> -->
+			<!-- </panel> -->
+		</layer>
+	</screen>
+	<screen id="userLogin"
+		controller="smpp.experiment.game.appstates.StartScreenAndMenuAppState">
+		<layer id="foreground" childLayout="center" width="100%" height="100%">
+			<panel id="inputPanel" childLayout="vertical">
+				<control name="textfield" id="userId" text="jack" maxLength="30"
+					width="150px" align="center"></control>
+				<control name="label" id="userIdErrorText" align="center"
+					width="100%"></control>
+			</panel>
+		</layer>
+
+	</screen>
+
+	<!-- High Score Screen -->
+	<screen id="highScoreScreen" controller="smpp.experiment.game.appstates.GamePlayAppState">
+		<layer id="HSbackground" childLayout="horizontal" width="100%"
+			height="100%">
+			<image filename="Interface/FCHighScore.png"></image>
+		</layer>
+		<layer id="HSForeground" childLayout="center" width="100%"
+			height="100%">
+			<panel id="highscore_panel" height="20%" width="100%"
+				childLayout="center">
+<!-- 				<text font="aurulent-sans-16.fnt" text="${CALL.getHighScore()}"/> -->
+			</panel>
+		</layer>
+	</screen>
+
+
+	<screen id="inGameGui" controller="smpp.experiment.game.appstates.GamePlayAppState">
+
+		<layer childLayout="horizontal" id="layer0" backgroundColor="#000000">
+			<effect>
+				<onStartScreen name="fade" start="#f" end="#0"
+					neverStopRendering="true"></onStartScreen>
+			</effect>
+		</layer>
+		<layer childLayout="vertical">
+			<text id="inGamePrompt" align="center" style="nifty-label"
+				height="20%" text="${strings.status}: ${strings.prepareToReachPrompt}" />
+		</layer>
+		<!-- drop shadows -->
+		<layer childLayout="vertical" id="layer1">
+			<panel id="panel1" align="right" padding="19px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtScoreB" font="Interface/Fonts/Tahoma.fnt" color="#000000"
+					text="Score: x" align="left" valign="center" />
+			</panel>
+			<panel id="panel3" align="right" padding="19px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtTrialB" font="Interface/Fonts/Tahoma.fnt" color="#000000"
+					text="Level: x" align="left" valign="center" />
+			</panel>
+			<panel id="panel5" align="right" padding="19px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtSetB" font="Interface/Fonts/Tahoma.fnt" color="#000000"
+					text="Level: x" align="left" valign="center" />
+			</panel>
+		</layer>
+
+		<layer childLayout="vertical" id="layer2" width="100%">
+			<panel id="panel2" align="right" padding="20px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtScoreF" font="Interface/Fonts/Tahoma.fnt" color="#f1b61d"
+					text="Score: x" align="left" valign="center" />
+			</panel>
+			<panel id="panel4" align="right" padding="19px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtTrialF" font="Interface/Fonts/Tahoma.fnt" color="#f1b61d"
+					text="Level: x" align="left" valign="center" />
+			</panel>
+			<panel id="panel6" align="right" padding="19px" valign="top"
+				childLayout="horizontal" visibleToMouse="true">
+				<text id="txtSetF" font="Interface/Fonts/Tahoma.fnt" color="#f1b61d"
+					text="Level: x" align="left" valign="center" />
+			</panel>
+			<text id="statusText" style="nifty-label" align="right"
+				text="${strings.status}: ${strings.prereach}" />
+		</layer>
+	</screen>
+</nifty>

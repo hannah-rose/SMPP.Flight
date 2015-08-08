@@ -33,6 +33,9 @@ import com.jme3.renderer.Camera;
 import com.jme3.system.AppSettings;
 import com.jme3.app.SimpleApplication;
 
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 import smpp.configuration.Configuration;
 import smpp.configuration.GameConfiguration;
 import smpp.configuration.SetConfig;
@@ -49,7 +52,7 @@ import smpp.sensors.RestSensor;
  * Appstate for running game
  * @author Hannah
  */
-public class GameRunning extends AbstractAppState {
+public class GameRunning extends AbstractAppState implements ScreenController {
     //Access game components
     private SimpleApplication app;
     private InputManager inputManager;
@@ -61,27 +64,22 @@ public class GameRunning extends AbstractAppState {
     private AppSettings settings;
     private static final Logger LOG = LoggerFactory.getLogger(GameRunning.class);
     
-    // Variables from Jack's GamePlayAppState
-    // TODO: clean up with comments once they are all integrated
     private List<TrackingFrame> healthyMotion;
     private UUID experimentId, setId, trialId;
     private IFrameObservable o;
     
     List<SetConfig> setConfigurations;
-    //float sensitivity = 0.1f;
     MotionCaptureWebClient mMcwc;
     String nTrackedObject = Configuration.getNormTrackedObject();
     SetConfig curSetConfig;
     
     /*
-     * Variable to set control source for game
+     * Enum to set control source for game
      * TODO: set from start screen
      */
     enum Control {
     	USER, PLAYBACK, KEYS
     }
-    
-    //private boolean isReaching = false;
     
     //*********************************************************
     
@@ -102,7 +100,7 @@ public class GameRunning extends AbstractAppState {
     Status game_status;
     GamePhysics physics;
     Sound sound;
-    Control control = Control.USER;
+    Control control = Control.PLAYBACK;
     
     @Override
     public void update(float tpf){
@@ -132,25 +130,24 @@ public class GameRunning extends AbstractAppState {
         physics = new GamePhysics(stateManager, world, flightgame.player, game_status, sound);
         
         // Test get data
-        //TODO: do I need the commented-out stuff
         try {
         	mMcwc = new MotionCaptureWebClient(Configuration.getSMPPWebServiceURI());
-        	// Trial t = mMcwc.getTrial(Configuration.getNormExperimentID());
         }
         catch (Exception e){
         	e.printStackTrace();
         }
         
-        // More configurations
-        // TODO: 
+        // Configurations
         try {
         	setConfigurations = GameConfiguration.getSetListForId(Configuration.getUserId());
-        	int numSets = setConfigurations.size();
+        	//initSetParams(game_status.level);
         }
         catch (IOException e) {
         	// couldn't find sesion configuration for configured userId
         	e.printStackTrace();
-        }
+        } //catch (URISyntaxException e) {
+			//e.printStackTrace();
+		//}
         
         // Initialize control
         switch(control) {
@@ -159,6 +156,7 @@ public class GameRunning extends AbstractAppState {
         	try {
         		UserMotionControl userMotionControl = new UserMotionControl(Configuration.getTrackedObject());
         		flightgame.player.addControl(userMotionControl);
+        		LOG.trace("User control activated");
         	} catch (Exception e1) {
         		e1.printStackTrace();
         	}
@@ -167,7 +165,7 @@ public class GameRunning extends AbstractAppState {
         	try {
     			MotionPlaybackController playbackControl = new MotionPlaybackController("RIGHT_HAND_1", healthyMotion);
     			flightgame.player.addControl(playbackControl);
-    			LOG.debug("Motion control activated");
+    			LOG.trace("Motion control activated");
     		} catch (Exception e1) {
     			e1.printStackTrace();
     		}
@@ -176,20 +174,38 @@ public class GameRunning extends AbstractAppState {
         	try {
         		key_motion = new Key_Motion(flightgame.player, cam);
         		stateManager.attach(key_motion);
+        		LOG.trace("Keyboard control activated");
         	} catch (Exception e1) {
     			e1.printStackTrace();
     		}
         }
-        
-        
+         
         // Attach states
         stateManager.attach(game_status);
         stateManager.attach(physics);
         stateManager.attach(sound);
     }
-}
 
-/*private void initSetParams(int set) throws ClientProtocolException, URISyntaxException, IOException 
+	@Override
+	public void bind(Nifty arg0, Screen arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEndScreen() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStartScreen() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+private void initSetParams(int set) throws ClientProtocolException, URISyntaxException, IOException 
 {
 	curSetConfig = setConfigurations.get(set);
 	game_status.num_reps = curSetConfig.getNumTrials();
@@ -209,153 +225,5 @@ public class GameRunning extends AbstractAppState {
 			+ ", set " + set + "/" + numSets + " curSetConfig: " + curSetConfig
 			+ " experimentId: " + experimentId + " normTrialId: " + t.getId());
 }
+
 }
-*/
-
-/*private TrackingFrameExtractor<Vector3f, TrackingFrame> trackedObjPositionExtractor = new TrackingFrameExtractor<Vector3f, TrackingFrame>() {
-	@Override
-	public Vector3f extract(TrackingFrame tf) {
-		if (canExtract(tf))
-			return Utils.pFromFloat(tf.getTrackingObjects().get(nTrackedObject)
-					.getObjectPoint());
-		return null;
-	}
-
-	@Override
-	public boolean canExtract(TrackingFrame tf) {
-		return tf.getTrackingObjects().containsKey(nTrackedObject);
-	}
-};
-private TrackingFrameExtractor<Quaternion, TrackingFrame> trackedObjQuatExtractor = new TrackingFrameExtractor<Quaternion, TrackingFrame>() {
-	@Override
-	public Quaternion extract(TrackingFrame tf) {
-		if (canExtract(tf))
-			return Utils.qFromFloat(tf.getTrackingObjects().get(nTrackedObject)
-					.getObjectQuaternion());
-		return null;
-	}
-
-	@Override
-	public boolean canExtract(TrackingFrame tf) {
-		return tf.getTrackingObjects().containsKey(nTrackedObject);
-	}
-	
-	/**
-	 * uses given {@link TrackingFrameExtractor} to extract data from evenly
-	 * spaced points along the path (given as List of {@link TrackingFrame}s).
-	 * 
-	 * @param numPositions
-	 *            how many points along the path from which to get the
-	 *            information. Data is regular intervals over the distance of
-	 *            the path
-	 * @param posTrackedObject
-	 *            the trackedObject name which will be used to the path
-	 *            distance.
-	 * @param healthyMotion2
-	 *            the motion data
-	 * @param ext
-	 *            a {@link TrackingFrameExtractor} which will be used on the
-	 *            TrackingFrames to extract the information
-	 * @return a list of length numPositions, containing the data extracted by
-	 *         ext
-	 * @throws Exception
-	 *             if there are < numPositions frames in the given motion data
-	 */
-	/*private <T> List<T> getTrackingObjectInformationAtProgresses(int numPositions,
-			String posTrackedObject, List<TrackingFrame> healthyMotion2,
-			TrackingFrameExtractor<T, TrackingFrame> ext) throws Exception {
-		if (healthyMotion2.size() < numPositions)
-			throw new Exception("not enough TrackingFrame to calculate rotations. expected > "
-					+ numPositions + " . was " + healthyMotion2.size());
-		List<Vector3f> m = Utils.toVectors(healthyMotion2, posTrackedObject);
-		Vector3f cur = Utils.pFromFloat(healthyMotion2.get(1).getTrackingObjects()
-				.get(posTrackedObject).getObjectPoint()), prev = Utils.pFromFloat(healthyMotion2
-				.get(0).getTrackingObjects().get(posTrackedObject).getObjectPoint());
-		int curPosition = 0;
-		Vector3f from = m.get(0);
-		Vector3f furthest = AbstractReachDeviationControl.findFurthest(from, m);
-		float totalDist = Utils.calculatePathDistanceTo(m, furthest);
-		LOG.debug("calculated total distance: " + totalDist + ". from: " + from
-				+ " to furthest point: " + furthest);
-		float distTravelled = 0;
-		List<T> qs = new ArrayList<T>(numPositions);
-		for (int i = 0; i < healthyMotion2.size() && curPosition < numPositions; i++) {
-			if (ext.canExtract(healthyMotion2.get(i))) {
-				if (healthyMotion2.get(i).getTrackingObjects().containsKey(posTrackedObject))
-					cur = Utils.pFromFloat(healthyMotion2.get(i).getTrackingObjects()
-							.get(posTrackedObject).getObjectPoint());
-			} else
-				// skip frames without the desired TrackingObject, slash that
-				// can't be extracted
-				continue;
-			distTravelled += cur.subtract(prev).length();
-			float comp = distTravelled / totalDist;
-			float prog = (float) curPosition / ((float) numPositions - 1);
-			if (comp >= prog) {
-				LOG.trace("comp: " + comp + " curPosition/numPositions: " + prog
-						+ " extracing value and adding to return list");
-				qs.add(ext.extract(healthyMotion2.get(i)));
-				curPosition++;
-			}
-			prev = cur;
-		}
-		return qs;
-	}9*/
-
-
-
-// This is used when we return to the rest position
-/*public void onRestChange(boolean isRestingNow) {
-	if (isRestingNow) {
-		// if we are now resting. If we were reaching previously,
-		// end recording. Otherwise start recording, in preperation
-		// for another reach
-		LOG.debug("resting now");
-		try {
-			if (isReaching) {
-				LOG.debug("we were reaching. ending recording: " + trialId);
-				assert (trialId != null);
-				// end reach. stop recording
-				mMcwc.stopRecording(trialId);
-				// Is this something I need
-				//Utils.setText(screen, statusTextId, strings.getString("status") + ": "
-				//		+ strings.getString("recordingComplete"));
-				isReaching = false;
-				if (game_status.rep == game_status.num_reps) {
-					// set complete
-					game_status.rep = 0;
-					game_status.level++;
-					LOG.info("completed trial " + game_status.rep + "/" + game_status.num_reps + ". Set complete!");
-					if (game_status.level == game_status.num_levels) {
-						LOG.info("completed set " + game_status.level + "/" + game_status.num_levels + ". Session complete");
-						System.exit(1);
-					}
-					initSetParams(game_status.level);
-					// curSetConfig = setConfigurations.get(set);
-					// LOG.debug("loading configuration for set: " + set +
-					// " config: "
-					// + curSetConfig);
-				}
-				//startScreenAppState.updateGameGUI(score, trial, set, numTrials, numSets);
-
-			} else {
-				// not reaching. start reach
-				assert (setId != null);
-				trialId = mMcwc.startRecording(setId, Configuration.getTrackedType());
-				LOG.debug("not reaching, and now resting. Begginning reach phase. starting recording. TrialId: "
-						+ trialId);
-				//Utils.setText(screen, statusTextId, strings.getString("status") + ": "
-				//		+ strings.getString("recording"));
-				isReaching = true;
-				game_status.rep++;
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-}
-}*/
